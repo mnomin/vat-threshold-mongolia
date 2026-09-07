@@ -1,0 +1,33 @@
+# --- Confidential data: never upload ---
+data/raw/
+*.xlsx
+
+# --- LaTeX build files (regenerated every compile) ---
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.glo
+*.gls
+*.glg
+*.ist
+*.acn
+*.acr
+*.alg
+
+# --- R ---
+.Rhistory
+.RData
+.Rproj.user/
+
+# --- macOS ---
+.DS_Store

@@ -1,0 +1,5 @@
+Group,Sector,Pre Mean Firms/Bin,Pre Total Active Firms,Post Mean Firms/Bin,Post Total Active Firms
+B2B (Control Group),Manufacturing,8.9,3015,9.3,3393
+B2B (Control Group),Wholesale,19.2,7519,23.9,9564
+B2C (Treatment Group),Food service,5.3,1178,4.3,1231
+B2C (Treatment Group),Retail,20.1,7228,20,7890

@@ -1,0 +1,4 @@
+Hypothesis,Prediction,Finding_main,Finding_robA (excl 2020+2021),Finding_robB (full sample)
+H1: B2C bunches more pre-reform,"b_B2C > b_B2B, 2014-15","b_B2C = 3.693, b_B2B = 2.252 -> gap = 1.441 (CONSISTENT)",gap = 1.441,gap = 1.441
+H2: Parallel pre-trends,No differential trend 2014-15,Only 2 pre-years -- assess descriptively (see pre_sector_b output),--,--
+H3: DiD < 0 (Ebarimt effect),β₃ < 0 in DiD regression,"DiD = -1.562, Webb-p(Spec1) = 0.0659, Webb-p(Spec2) = 0.0668, Webb-p(Spec3) = 0.0659 (CONSISTENT -- B2C fell more)","DiD = -1.532, Webb-p(Spec1) = 0.0791","DiD = -1.602, Webb-p(Spec1) = 0.0590"
