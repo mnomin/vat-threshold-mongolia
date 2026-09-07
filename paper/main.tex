@@ -25,6 +25,7 @@
 \usepackage{array}
 \usepackage{float}
 \usepackage[acronym]{glossaries}
+\makeglossaries
 
 % --- Settings ---
 \onehalfspacing
@@ -77,7 +78,7 @@
 \end{titlepage}
 
 % ==========================================
-% ABSTRACT 
+% ABSTRACT
 % ==========================================
 \begin{abstract}
 This study examines the effect of Mongolia's 2016 ebarimt program, an electronic receipt system designed to strengthen VAT enforcement in business-to-consumer (B2C) transactions. Introduced alongside an increase in the VAT registration threshold from MNT 10 million to MNT 50 million, the program rewarded consumers for registering purchases and created an independent audit trail for retail sales. To identify its effect, I combine a polynomial counterfactual bunching estimator with a difference-in-differences design using binned corporate income tax data covering 2014 to 2023. Threshold bunching declined substantially more in consumer-facing sectors than in business-to-business (B2B) sectors after the reform. The decline accumulated over several years rather than appearing at once, consistent with the gradual uptake of a new monitoring technology. The evidence indicates that consumer-side digital auditing can narrow the B2C enforcement gap that has long constrained VAT collection in low-capacity tax administrations.
@@ -87,11 +88,10 @@ This study examines the effect of Mongolia's 2016 ebarimt program, an electronic
 
 \listoffigures
 \listoftables
-\makeglossaries
 \newpage
 
 % ==========================================
-% CHAPTER 1: INTRODUCTION  
+% CHAPTER 1: INTRODUCTION
 % ==========================================
 
 \chapter{Introduction}
@@ -293,6 +293,7 @@ z^*_t =
 \end{equation}
 The smooth counterfactual $\hat{N}_{jst}$ is recovered in three steps.
 
+\begin{enumerate}
 \item \textit{Step 1: counterfactual fit.}
 A polynomial centred at the threshold is fitted to the observed distribution, with dummies absorbing the bins inside an exclusion window $W_t$,
 \begin{equation}
@@ -331,6 +332,7 @@ The bunching window is $R_t = [z^*_t - 2{,}000{,}000,\; z^*_t)$, narrower than $
 \label{eq:b_hat_emp}
 \end{equation}
 Standard errors for $\hat{b}_{st}$ come from a residual bootstrap with 500 replications within each cell \parencite{chetty2011adjustment}: I resample the residuals of equation~\eqref{eq:poly_fit}, regenerate bin counts, and re-estimate $\hat{b}_{st}$, holding $z^U_t$ fixed across replications. Because $\hat{b}_{st}$ is a reduced-form outcome rather than an input to a structural elasticity, I follow \textcite{harju2019compliance} and \textcite{liu2021vat} in not converting it to an elasticity; for a VAT notch, heterogeneous input costs prevent a cleanly defined dominated region above the threshold.
+\end{enumerate}
 
 \paragraph{The difference-in-differences estimate.}
 The recovered ratios enter a two-step difference-in-differences design,
@@ -425,14 +427,14 @@ Figures~\ref{fig:app_cf_2015} and~\ref{fig:app_cf_2022} present the counterfactu
 
 The sector-year ratios from Table~\ref{tab:bunching} enter the two-step DiD framework of Equation~\eqref{eq:did}. Figure~\ref{fig:did_bar} shows the $2\times2$ decomposition: mean $\hat{b}$ for the B2C and B2B groups across the pre- and post-reform periods.
 
-\begin{figure}[H] 
+\begin{figure}[H]
     \centering
     \caption{\textbf{2$\times$2 DiD: Mean Normalised Bunching Before and After the 2016 Reform}}
     \label{fig:did_bar}
-    \vspace{4pt} 
-    
+    \vspace{4pt}
+
     \includegraphics[width=0.72\textwidth]{Figures/fig4_did_bar.pdf}
-    
+
     \vspace{6pt}
     \begin{flushleft}
     \small\textit{Notes:} Group means of $\hat{b}_{st}$ by treatment group and policy regime. Error bars denote 95\% confidence intervals. Pre-reform period: 2014--2015; post-reform period: 2016--2023, excluding 2020. The baseline DiD estimate ($\hat{\beta}=-1.562$) is from the Main specification (Table~\ref{tab:did}, column 1). \textit{Source:} Author's calculations based on MTA CIT registry data.
@@ -451,10 +453,10 @@ This compresses the pre-reform enforcement gap from $+1.441$ to $-0.121$ standar
     \caption{\textbf{B2C vs.\ B2B Normalised Bunching Over Time and the Convergence of the Enforcement Gap}}
     \label{fig:enforcement_gap}
     \vspace{4pt}
-    
+
     \includegraphics[width=\textwidth]{Figures/fig1_enforcement_gap_convergence.pdf}
-    
-    \vspace{6pt} 
+
+    \vspace{6pt}
     \begin{flushleft}
     \small\textit{Notes:} Pooled B2C and B2B mean $\hat{b}_{st}$ series with 95\% bootstrap confidence intervals (shaded). The dashed line marks the January 2016 reform. The benchmark DiD estimate ($\hat{\beta}=-1.562$) implies a 108\% reduction in the initial B2C--B2B gap. Triangles indicate the COVID-19 years .
   \textit{Source:} Author's calculations based on MTA CIT registry data.
@@ -503,9 +505,7 @@ $N$ (cells)   & 36  & 32  & 40  \\
 The sign and magnitude of $\hat{\beta}$ match Prediction~3 (Section~\ref{sec:theoretical_framework}). In the model, ebarimt raises $p(\text{B2C}, t \geq 2016)$ by $\Delta p > 0$, tightening the evasion margin through $\partial\hat{b}_{st}/\partial p(s,t) < 0$ (Equation~\eqref{eq:comparative_static}). On both counts the decline is more consistent with enforcement than with mechanical displacement, and any control-group contamination would bias $\hat{\beta}$ toward zero.\footnote{The nominally fixed post-reform threshold $z_2^* = 50{,}000{,}000$ MNT (about 23,000 USD) loses real value as inflation erodes it over 2016--2023. This does not confound $\hat{\beta}$: symmetric inflation affects all sectors and is absorbed by the year fixed effects $\delta_t$, while $\hat{\beta}$ is identified solely from differential B2C--B2B movement within each calendar year.}
 
 \paragraph{The threshold-expansion confound.}
-The 2016 reform bundled the fivefold threshold expansion with the ebarimt launch. Year fixed effects absorb the common response to the expansion, but if B2C and B2B sectors differed in firm-size distribution, the expansion alone could in principle produce a negative DiD coefficient. Two features of the data weigh against this. The timing does not fit a mechanical-displacement story: that would drop B2C $\hat{b}$ at once in 2016, whereas the 2016 event-study coefficient is indistinguishable from zero and the differential widens only later (Section~\ref{sec:event}). And the expansion should push $\hat{b}$ up for both groups, which is what the B2B control does (it rises, not falls); for the same expansion to also pull B2C down it would have to act in opposite directions on two groups facing the same notch. On both counts the decline is more consistent with enforcement than with mechanical displacement, and any control-group contamination would bias $\hat{\beta}$ toward zero.
-
-The binned data do not allow a direct comparison of the full revenue distributions of threshold-adjacent firms across regimes or sectors, so unobserved compositional differences cannot be fully excluded; Chapter~\ref{ch:discussion} acknowledges this. The available evidence points to size-exposure symmetry rather than compositional divergence. Over fixed windows around each notch $[7\text{M},15\text{M})$ at the old threshold and $[45\text{M},60\text{M})$ at the new one B2C and B2B firm counts sit near parity before the reform (B2C/B2B ratios of $1.13$ and $1.09$ at the old notch in 2014--2015; $0.88$ and $0.87$ at the new notch), and both groups expand into the new threshold zone at comparable rates after 2016. The one systematic post-reform shift runs with the mechanism: the B2C/B2B ratio at the old notch falls from $1.09$ in 2015 to $0.61$ by 2023 as B2C firms vacate the 10M neighbourhood, tracking the treatment path of Section~\ref{sec:event}. The full series appears in Appendix Table~\ref{tab:app_zone_composition}.
+The 2016 reform bundled the fivefold threshold expansion with the ebarimt launch. Year fixed effects absorb the common response to the expansion, but if B2C and B2B sectors differed in firm-size distribution, the expansion alone could in principle produce a negative DiD coefficient. Two features of the data weigh against this. The timing does not fit a mechanical-displacement story: that would drop B2C $\hat{b}$ at once in 2016, whereas the 2016 event-study coefficient is indistinguishable from zero and the differential widens only later (Section~\ref{sec:event}). And the expansion should push $\hat{b}$ up for both groups, which is what the B2B control does (it rises, not falls); for the same expansion to also pull B2C down it would have to act in opposite directions on two groups facing the same notch. Section~\ref{sec:event} develops the exogeneity of the reform more fully, including the compositional evidence from the threshold-zone data (Appendix Table~\ref{tab:app_zone_composition}); on both counts here the decline is more consistent with enforcement than with mechanical displacement, and any control-group contamination would bias $\hat{\beta}$ toward zero.
 
 Inference uses the restricted Webb wild cluster bootstrap of Section~\ref{sec:estimation_method}, appropriate at $G = 4$ clusters. The Main coefficient $\hat{\beta} = -1.562$ has Webb $p = 0.066$; the Full sample gives $-1.602$ ($p = 0.060$) and Robustness~A $-1.532$ ($p = 0.079$). With four clusters the bootstrap cannot resolve finer significance, so the case rests on the stability of the point estimate, which moves only $0.07$ units across specifications, and on the event-study pattern below rather than on significance stars.
 
@@ -514,7 +514,16 @@ Inference uses the restricted Webb wild cluster bootstrap of Section~\ref{sec:es
 \label{sec:event}
 \label{sec:robust}
 
-A credible reading of $\hat{\beta}$ requires that it reflect enforcement rather than divergent pre-trends, the treatment of pandemic years, or contamination of the control group. The event study tests parallel trends and traces the post-reform path; varying the sample gauges sensitivity to the COVID years; and a narrower control group checks for spillover.
+A credible reading of $\hat{\beta}$ requires that it reflect enforcement rather than the exogeneity of the reform, divergent pre-trends, the treatment of pandemic years, or contamination of the control group. This section takes these in turn: it first sets out why the 2016 reform can be treated as exogenous to the differential margin the design exploits, then uses the event study to test parallel trends and trace the post-reform path, varies the sample to gauge sensitivity to the COVID years, and narrows the control group to check for spillover.
+
+\paragraph{Exogeneity of the reform.}
+The design treats the January 2016 reform as exogenous to the differential B2C--B2B margin it exploits. Two features of the setting support that reading, and a third, compositional, threat is testable and tested here.
+
+The reform was not a response to sector-specific bunching. The threshold increase and the ebarimt launch were enacted together in the revised VAT Law, and I do not claim they are legislatively independent; both share a single origin. What identification requires is weaker. It is that the reform did not target the differential margin the design uses. The threshold applies to every sector by the same statutory rule, and nothing in the law conditions the cutoff or the receipt system on a sector's prior evasion. The enforcement shock reaches consumer-facing firms not by legislative design but through the technology of the receipt: ebarimt binds where sales are made to final consumers who can be induced to demand receipts, and is close to inert where transactions are already invoiced between firms (Section~\ref{sec:theoretical_framework}).
+
+The threshold increase itself is best read as a broad administrative adjustment rather than a consumer-enforcement measure, which is what allows the year fixed effects to absorb it. The 10 million MNT cutoff had been fixed since 2001, and indexing it to consumer prices over the intervening fifteen years would imply a 2016 figure of roughly 37 million MNT.\footnote{Author's calculation cumulating annual consumer-price inflation from 2001 to 2016 (National Statistics Office). The point is only that the increase is of the same order as inflation catch-up, not a precise indexation.} The actual cutoff of 50 million MNT is of the same order, so the increase largely restored the threshold's real value and eased filing for small firms, a motive common to B2C and B2B alike. Because that motive is sector-neutral, the year effects absorb it, and only the differential response is left for ebarimt to explain.
+
+The residual threat is compositional rather than legislative, and the data speak to it directly. If B2C and B2B sectors differed systematically in firm-size distribution near the notch, the common threshold shift could move the two groups by different amounts even absent any enforcement change. The threshold-zone composition weighs against this: B2C and B2B firm counts sit near parity in fixed windows around both the old and the new notch before the reform (ratios of $1.13$ and $0.88$ in 2014), and both groups expand into the new threshold zone at comparable rates afterwards (Appendix Table~\ref{tab:app_zone_composition}). The one systematic post-reform shift runs with the mechanism rather than against it: the B2C/B2B ratio at the old 10M notch falls from $1.09$ in 2015 to $0.61$ by 2023 as consumer-facing firms vacate that neighbourhood. The binned data cannot compare the full revenue distributions of threshold-adjacent firms across sectors, so compositional divergence cannot be excluded outright, a limit taken up in Chapter~\ref{ch:discussion}; the available evidence points to size-exposure symmetry. The event study adds a temporal check developed next: a composition-driven artefact of the threshold move would appear at once in 2016, whereas the differential emerges only as ebarimt coverage spreads.
 
 With 2015 as the omitted base, the single pre-reform coefficient $\hat{\beta}_{2014} = +0.110$ ($p = 0.913$) is the parallel-trends test, and it is indistinguishable from zero, so the data give no evidence against parallel trends. Table~\ref{tab:event_study} and Figure~\ref{fig:event_study} report the full sequence; Robustness~A yields identical coefficients for all non-pandemic years.
 
@@ -576,7 +585,7 @@ Manufacturing in 2021 is the key diagnostic. As a pure B2B sector with no ebarim
 
 Across the three samples the DiD coefficient is $\hat{\beta}_{\text{Main}} = -1.562$ ($N = 36$), $\hat{\beta}_{\text{Rob.\,A}} = -1.532$ ($N = 32$), and $\hat{\beta}_{\text{Full}} = -1.602$ ($N = 40$), a range of $0.070$ units, under 5\% around the central estimate. The Full sample is marginally the most negative and Robustness~A the least; dropping 2021 removes a transitional year in which COVID disruption depressed manufacturing $\hat{b}$, and the resulting movement is small. The post-reform enforcement gap stays negative in every sample ($-0.121$ Main, $-0.090$ Robustness~A, $-0.160$ Full), so the sign inversion holds throughout. The Robustness~A event study (Figure~\ref{fig:event_study}, dashed line) is nearly identical to the Main specification for all non-COVID years, with 2018 and 2023 again the coefficients furthest from zero ($\hat{\beta}_{2023} = -2.312$).
 
-\paragraph{Control-group contamination.} \textcite{nyamdavaa2023does} documents that ebarimt compliance gains among downstream B2C retailers spill upstream into wholesale reporting. Such partial treatment of the control depresses the B2B trajectory and biases $\hat{\beta}$ toward zero; consistent with this, wholesale $\hat{b}$ drifts up (2.033 in 2015 to 3.006 in 2023; Table~\ref{tab:app_bunching_main}) rather than staying flat. This is the partial violation of Prediction~2 anticipated in Section~\ref{sec:theoretical_framework}: the B2B group is a clean counterfactual for the threshold shift only to the extent that it escapes consumer monitoring, and wholesale does not fully escape it. Manufacturing, with no direct link to B2C retail chains, is the cleaner control: restricting the control group to manufacturing alone yields $\hat{\beta} = -1.457$ (HC2 SE $= 0.563$, $p < 0.05$, $N = 27$; Appendix Table~\ref{tab:app_robust_mfg}). The slightly smaller magnitude arises because manufacturing itself declined modestly under the new 50M MNT notch, leaving the four-sector estimate the more conservative of the two.    
+\paragraph{Control-group contamination.} \textcite{nyamdavaa2023does} documents that ebarimt compliance gains among downstream B2C retailers spill upstream into wholesale reporting. Such partial treatment of the control depresses the B2B trajectory and biases $\hat{\beta}$ toward zero; consistent with this, wholesale $\hat{b}$ drifts up (2.033 in 2015 to 3.006 in 2023; Table~\ref{tab:app_bunching_main}) rather than staying flat. This is the partial violation of Prediction~2 anticipated in Section~\ref{sec:theoretical_framework}: the B2B group is a clean counterfactual for the threshold shift only to the extent that it escapes consumer monitoring, and wholesale does not fully escape it. Manufacturing, with no direct link to B2C retail chains, is the cleaner control: restricting the control group to manufacturing alone yields $\hat{\beta} = -1.457$ (HC2 SE $= 0.563$, $p < 0.05$, $N = 27$; Appendix Table~\ref{tab:app_robust_mfg}). The slightly smaller magnitude arises because manufacturing itself declined modestly under the new 50M MNT notch, leaving the four-sector estimate the more conservative of the two.
 
 Across all three sample definitions and both control-group choices, B2C bunching fell substantially relative to B2B after 2016, compressing the pre-reform enforcement gap from $+1.441$ to $-0.121$ (Table~\ref{tab:did}, column~1) and turning the sectoral differential negative by 2023 (Table~\ref{tab:bunching}). The primary estimate $\hat{\beta} = -1.562$ (Webb $p = 0.066$) is stable across specifications, and the dynamic pattern rather than a single significance star carries the identification.
 
@@ -590,17 +599,29 @@ Across all three sample definitions and both control-group choices, B2C bunching
 
 The Mongolian evidence suggests that the B2C enforcement gap is not a fixed feature of the credit-invoice VAT. Ebarimt works through a decentralized channel: consumer rebates and lottery entries turn ordinary retail sales into self-reported audit points, so verification scales with the spread of a consumer technology rather than with the size of the audit bureaucracy. The difference-in-differences results bear this out, with the pre-reform B2C--B2B gap closing and then inverting, and the event study shows the effect building over several years rather than at the reform date, which fits a process of gradual adoption (Section~\ref{sec:event}).
 
-The sector pattern points the same way. The response was strongest where transactions are visible and technological frictions low: cash-heavy, face-to-face food service adjusted fastest, with retail following more gradually. One reform in one economy cannot establish how far this generalizes, but the direction is informative. Where sales are visible and the monitoring technology is easy to use, consumer-driven verification may be a low-cost complement to conventional audit capacity. This speaks directly to the current parliamentary proposal to raise the threshold further, since a higher cutoff would concede revenue from exactly the small consumer-facing firms that ebarimt has made cheap to monitor.
+The sector pattern points the same way. The response was strongest where transactions are visible and technological frictions low: cash-heavy, face-to-face food service adjusted fastest, with retail following more gradually. One reform in one economy cannot establish how far this generalizes, but the direction is informative. Where sales are visible and the monitoring technology is easy to use, consumer-driven verification may be a low-cost complement to conventional audit capacity.
 
-These gains come with real trade-offs, however. A consumer-monitoring program needs spending on information technology, data management, and the consumer rewards themselves, which in Mongolia include a rebate of one-fifth of the VAT paid and lottery prizes. I find that ebarimt reduced the distortion around the threshold, but I do not measure how much revenue it raised, or whether that revenue covers the program's cost. The size of any gain also depends on the tax: \textcite{nyamdavaa2023does} finds that monitored retailers raised reported sales but offset much of it by inflating costs on their income tax returns, so the response is larger and cleaner for the VAT than for taxes firms can adjust on the cost side. A full welfare assessment would also need structural estimates of firm compliance costs, consumer adoption costs, and the state's infrastructure outlays, which lie beyond this paper's scope.
+\section{Implications for Tax Revenue}
+\label{sec:revenue}
 
-Several constraints bound these conclusions. The data are binned and aggregated, so they cannot track individual firms or separate the bunching response into real-output adjustment and strategic misreporting. For the same reason, treatment is identified at the sector aggregate: the estimates show how the bunching distribution shifted within B2C relative to B2B, not how firms differed within each group. The outcome itself is a normalized bunching ratio, which measures how far the distortion moved in standardized terms rather than the share of firms that changed behaviour, and the data do not allow conversion between the two.
+The design identifies how ebarimt reshaped the bunching distribution, not how much revenue it raised, and the two questions are worth keeping separate. A normalised bunching ratio measures the distortion around the threshold in standardised terms; it does not translate mechanically into revenue. For the revenue question the natural anchor is firm-level evidence from the same reform. \textcite{nyamdavaa2023does}, using administrative VAT returns, finds that monitored retailers raised reported VAT liabilities by about 31 percent after ebarimt, with reported sales rising 42 percent, and that the effect spilled upstream, lifting suppliers' VAT liabilities by at least 15 percent. Both figures are lower bounds, since the wholesale control is itself partly treated. Those estimates, drawn from firm-level liabilities, are the appropriate basis for a revenue claim; the contribution here is to show that the same reform compressed threshold bunching along the consumer-exposure margin the theory predicts.
 
-Identification is limited in three ways. The threshold increase and the ebarimt launch took effect together in 2016 and are best treated as a single regime change; the design does not separate them by timing, and since the higher cutoff applied to both groups, only the residual cross-sector difference is attributed to consumer monitoring. The notch mechanics are identical across sectors, but the common-threshold assumption remains an assumption rather than a separately tested fact. The parallel-trends test is also limited, because only one pre-reform coefficient is estimable; that coefficient, $\hat{\beta}_{2014}$, is indistinguishable from zero (Section~\ref{sec:event}), which is consistent with parallel trends but far from proof. And the control group is exposed to cross-sector spillovers: if ebarimt raised B2B supplier compliance through invoice-matching pressure \parencite{nyamdavaa2023does}, the control is partially treated and $\hat{\beta}$ understates the true effect. Restricting the control to manufacturing, which has no direct retail supply link, leaves the estimate negative and of similar magnitude (Section~\ref{sec:event}).
+The bunching estimates can still be given a rough revenue reading, useful for orders of magnitude even though it should not be treated as a precise figure. Appendix~\ref{sec:appendix_revenue} sets out the calculation. Comparing post-reform B2C bunching with the counterfactual implied by the control-group trend, ebarimt appears to have moved on the order of one hundred consumer-facing firms per year out of the bunching region and toward compliance at the 50 million MNT threshold. A firm that registers rather than suppressing revenue remits output VAT of at least $\tau z^* = 5$ million MNT on the threshold base, and more once revenue above the threshold is counted, which places the additional VAT recovered from suppressed bunching on the order of 500 to 700 million MNT a year. Set against national VAT collections, which run into the trillions of MNT annually \parencite{nso_government_budget}, that is a small fraction of one percent.
+
+The contrast is the point rather than a shortfall. The bunching channel captures only firms clustered at the registration margin, a thin slice of the tax base, whereas the compliance gains \textcite{nyamdavaa2023does} documents operate across the full distribution of monitored firms and along the supply chain. The threshold response is best understood as a visible marker that consumer monitoring changed firm behaviour, not as a measure of the reform's total revenue yield. A full welfare account would also net the programme's costs, the consumer rebate of one-fifth of the VAT paid, the lottery prizes, and the point-of-sale and data infrastructure, against revenue gains of the kind Nyamdavaa estimates; that accounting lies beyond this paper and is a natural use of firm-level data. The response is also larger and cleaner for the VAT than for taxes firms can adjust on the cost side: \textcite{nyamdavaa2023does} finds that monitored retailers offset much of their higher reported sales by inflating costs on income tax returns, so income tax liabilities rose far less than VAT liabilities.
+
+This bears directly on current policy. A standing parliamentary proposal would raise the registration threshold further. The evidence here counsels caution, since a higher cutoff would release from the VAT net precisely the small consumer-facing firms that ebarimt has made comparatively cheap to monitor, conceding the enforcement gain the reform achieved at that margin.
+
+\section{Limitations}
+\label{sec:limitations}
+
+Several constraints bound these conclusions. The data are binned and aggregated, so they cannot track individual firms or separate the bunching response into real-output adjustment and strategic misreporting. Because the estimator works on sector aggregates rather than firms, and inference rests on only four sector clusters, the confidence intervals around the estimates are wide: the results establish the direction and the rough magnitude of the response rather than a tightly bounded coefficient. For the same reason, treatment is identified at the sector aggregate: the estimates show how the bunching distribution shifted within B2C relative to B2B, not how firms differed within each group. The outcome itself is a normalized bunching ratio, which measures how far the distortion moved in standardized terms rather than the share of firms that changed behaviour, and the data do not allow conversion between the two.
+
+Identification is limited in three ways. The threshold increase and the ebarimt launch took effect together in 2016 and are best treated as a single regime change; the design does not separate them by timing, and since the higher cutoff applied to both groups, only the residual cross-sector difference is attributed to consumer monitoring. Section~\ref{sec:event} argues that the threshold move was a sector-neutral adjustment absorbed by the year fixed effects, and that the compositional channel by which it could still bias the estimate is not visible in the threshold-zone data; but the common-threshold assumption, that the fivefold increase moved B2C and B2B bunching by the same amount, remains an assumption rather than a separately tested fact, because the binned data cannot compare the two groups' full revenue distributions near the notch. The parallel-trends test is also limited, because only one pre-reform coefficient is estimable; that coefficient, $\hat{\beta}_{2014}$, is indistinguishable from zero (Section~\ref{sec:event}), which is consistent with parallel trends but far from proof. And the control group is exposed to cross-sector spillovers: if ebarimt raised B2B supplier compliance through invoice-matching pressure \parencite{nyamdavaa2023does}, the control is partially treated and $\hat{\beta}$ understates the true effect. Restricting the control to manufacturing, which has no direct retail supply link, leaves the estimate negative and of similar magnitude (Section~\ref{sec:event}).
 
 Inference is constrained in two further ways. With four sector clusters, conventional cluster-robust standard errors over-reject, so I use the wild cluster bootstrap with Webb six-point weights; the resulting $p$-values are small-sample approximations, and the case rests on the stability of the point estimate across specifications as much as on significance levels. The bunching ratios also enter the difference-in-differences as estimated rather than observed outcomes. The within-cell bootstrap captures their first-stage uncertainty, but a joint two-step treatment in the spirit of \textcite{arkhangelsky2024causal} is infeasible with four groups, so the reported standard errors are conditional on the first-stage estimates. Those first-stage errors are tight for the control sectors and for retail throughout, while the food service cells in the early post-reform years caution against over-reading any single coefficient.
 
-These limits indicate the natural next steps. Firm-level panel data would follow individual firms across the threshold, separating real output responses from strategic misreporting and measuring directly how many firms adjusted. Regional variation in ebarimt's rollout and enforcement intensity would supply a second source of identification and test whether the compliance response scales with local enforcement. With data of that kind the present sector-level design could be sharpened to the firm or region level. The contribution here should be read accordingly: not a final accounting of ebarimt's effect, but an identification of it within real data constraints, and a basis for the more granular work that richer data will allow.
+These limits indicate the natural next steps, and they are also what would raise the study to the standard of a journal contribution. Firm-level panel data would follow individual firms across the threshold, separating real output responses from strategic misreporting, measuring directly how many firms adjusted, and delivering the narrower confidence intervals that the sector-level aggregates cannot. Regional variation in ebarimt's rollout and enforcement intensity would supply a second source of identification and test whether the compliance response scales with local enforcement. With data of that kind the present sector-level design could be sharpened to the firm or region level. The contribution here should be read accordingly: not a final accounting of ebarimt's effect, but an identification of it within real data constraints, and a basis for the more granular work that richer data will allow.
 
 
 % ── START THE APPENDIX ──
@@ -630,10 +651,10 @@ This appendix collects the year-by-year estimates behind the main results: the r
     \caption{\textbf{Revenue Distributions at the VAT Threshold: 2017 (Post-Reform)}}
     \includegraphics[width=\textwidth]{Figures/fig0_raw_distributions_2017.pdf}
     \label{fig:app_raw_2017}
-    
-    \footnotesize\textit{Notes:} Raw firm counts by 1M MNT revenue bins 
-    for each sector. The red dashed line is a VAT registration 
-    threshold at 50M MNT. The catch-all bin [0, 1{,}000{,}000) MNT is excluded. 
+
+    \footnotesize\textit{Notes:} Raw firm counts by 1M MNT revenue bins
+    for each sector. The red dashed line is a VAT registration
+    threshold at 50M MNT. The catch-all bin [0, 1{,}000{,}000) MNT is excluded.
      \textit{Source:} MTA CIT registry data.
 \end{figure}
 
@@ -848,12 +869,12 @@ Bootstrap standard errors based on 500 replications.
     \caption{\textbf{Observed Distribution and Polynomial Counterfactual: 2015 (Pre-Reform)}}
     \includegraphics[width=\textwidth]{Figures/fig5_counterfactual_2015.pdf}
     \label{fig:app_cf_2015}
-    
-    \footnotesize\textit{Notes:} Observed firm counts by revenue bin (bars) are 
-    plotted alongside the fitted polynomial counterfactual (red line). 
-    The shaded region denotes the exclusion window ($R_t$) around the VAT 
-    registration threshold. The active threshold is $z^* = 10$M MNT. 
-    Excess mass below the threshold relative to the counterfactual 
+
+    \footnotesize\textit{Notes:} Observed firm counts by revenue bin (bars) are
+    plotted alongside the fitted polynomial counterfactual (red line).
+    The shaded region denotes the exclusion window ($R_t$) around the VAT
+    registration threshold. The active threshold is $z^* = 10$M MNT.
+    Excess mass below the threshold relative to the counterfactual
     identifies bunching behavior. \textit{Source:} Author’s calculations based on MTA CIT registry data.
 \end{figure}
 
@@ -862,12 +883,12 @@ Bootstrap standard errors based on 500 replications.
     \caption{\textbf{Observed Distribution and Polynomial Counterfactual: 2022 (Post-Reform)}}
     \includegraphics[width=\textwidth]{Figures/fig5_counterfactual_2022.pdf}
     \label{fig:app_cf_2022}
-    
-    \footnotesize\textit{Notes:} Observed firm counts by revenue bin (bars) are 
-    plotted alongside the fitted polynomial counterfactual (red line). 
-    The shaded region denotes the exclusion window ($R_t$) around the VAT 
-    registration threshold. The active threshold is $z^* = 50$M MNT. 
-    Relative to 2015, reduced excess mass below the threshold is consistent 
+
+    \footnotesize\textit{Notes:} Observed firm counts by revenue bin (bars) are
+    plotted alongside the fitted polynomial counterfactual (red line).
+    The shaded region denotes the exclusion window ($R_t$) around the VAT
+    registration threshold. The active threshold is $z^* = 50$M MNT.
+    Relative to 2015, reduced excess mass below the threshold is consistent
     with improved enforcement following the introduction of ebarimt. \textit{Source:} Author’s calculations based on MTA CIT registry data.
 \end{figure}
 
@@ -965,7 +986,7 @@ Table~\ref{tab:app_excl_lo} varies the bunching window below the threshold. The 
 \begin{threeparttable}
 \setlength{\tabcolsep}{4pt} % Reduced from 6pt to save horizontal space
 \small
-\begin{tabular}{lcccccccc} 
+\begin{tabular}{lcccccccc}
 \toprule
 % Simplified header (explanation is already in footnote 'a')
 $\delta$\tnote{a} & B2C pre & B2C post & B2B pre & B2B post
@@ -987,6 +1008,20 @@ extend into the ascending pre-notch slope and are not reported as admissible.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
+
+\clearpage
+\section{An Illustrative Revenue Calculation}
+\label{sec:appendix_revenue}
+
+This appendix details the back-of-envelope revenue figure discussed in Section~\ref{sec:revenue}. It is illustrative and rests on assumptions the binned data cannot test; the firm-level estimates of \textcite{nyamdavaa2023does} remain the appropriate basis for revenue claims.
+
+The calculation has two inputs: the number of consumer-facing firms ebarimt moved out of bunching each year, and the VAT each such firm remits once compliant.
+
+For the first, I compare, in each post-reform year, the observed B2C excess mass with the counterfactual that would have prevailed had the pre-reform enforcement gap persisted. Taking the contemporaneous B2B bunching intensity and adding the pre-reform B2C--B2B gap of $1.441$ standardised units gives the counterfactual B2C intensity absent ebarimt; the difference from the observed intensity, converted to a firm count using the fitted counterfactual density in the bunching window, averages roughly one hundred B2C firms per year moved toward compliance over 2016--2023 (2020 excluded).
+
+For the second, a firm that registers at the 50 million MNT threshold rather than suppressing revenue below it remits output VAT of at least $\tau z^* = 0.10 \times 50 = 5$ million MNT on the threshold base, and more once revenue above the threshold is counted; the missing-mass region above the notch places representative compliant revenue near 65 million MNT, or about $6.5$ million MNT in VAT. Multiplying the annual firm count by these per-firm amounts yields additional VAT of approximately 500 to 700 million MNT per year.
+
+Two caveats bound the figure. It assumes de-bunched firms comply fully and that suppressed revenue reflects evasion rather than real output restraint, neither of which the aggregated data can verify. And it counts only the registration margin, omitting the intensive-margin compliance gains across the wider firm distribution that firm-level data capture. Against national VAT revenue in the trillions of MNT \parencite{nso_government_budget}, the recovered amount is on the order of a few hundredths of one percent, a reminder that the bunching response identifies a mechanism rather than a large aggregate revenue effect.
 
 
 \printbibliography
