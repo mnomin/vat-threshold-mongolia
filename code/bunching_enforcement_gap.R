@@ -116,12 +116,11 @@ print_wcb <- function(wb, coef_name) {
 # STEP 1 -- Parameters
 # =============================================================================
 
-# Input data path
-data_path  <- "/Users/nomin-erdenemunkhjargal/Documents/GraSPP/Thesis/Data/MAIN_DATA.xlsx"
+# Project root (this repo)
+project_dir <- "~/Documents/GraSPP/vat-threshold-mongolia"
 
-# Output directory -- all CSVs and PDFs are saved here
-# Change this one line to redirect all outputs to a different folder
-output_dir <- "/Users/nomin-erdenemunkhjargal/Documents/GraSPP/Thesis/Data/Rcode/output"
+data_path   <- file.path(project_dir, "data/raw/MAIN_DATA.xlsx")
+output_dir  <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
 # Sector metadata: must match EXACTLY the sector names in the Excel file
@@ -300,12 +299,19 @@ cat("Saved table3_2_descriptive_stats.csv\n")
 
 
 # ── Figure: Raw Revenue Distributions Around the Active Threshold ─────────────
-# X-axis is threshold-normalised: revenue / active VAT threshold. The kink sits
-# at 1.0 in every panel and all panels span the SAME range (0 to norm_max),
-# so the pre-reform (10M) and post-reform (50M) distributions are directly
-# comparable despite the threshold change.
-norm_max     <- 3                       # plot out to 3x the active threshold
-norm_breaks  <- seq(0, norm_max, by = 0.5)
+# X-axis: revenue in million MNT. All four sector panels within a policy era
+# share ONE x-range (0 to zoom_pre / zoom_post) so sectors are comparable within
+# an era. Pre- and post-reform columns differ because the thresholds differ
+# (10M vs 50M).
+zoom_pre   <- 40                        # x-axis max (M MNT), pre-reform panels  (threshold 10M)
+zoom_post  <- 120                       # x-axis max (M MNT), post-reform panels (threshold 50M)
+
+# Y-axis for the distribution figures (fig_desc, fig0) is a RELATIVE BIN DENSITY:
+# each bin's firm count divided by that panel's mean firm count over the plotted
+# window. 1.0 = the panel's typical bin; a spike of 3 = three times typical mass.
+# This puts every sector panel on ONE comparable y-scale without the raw-count
+# gap between B2C (many firms) and B2B (few firms) squashing the B2B panels.
+dens_ymax    <- 10                      # shared y cap for fig_desc / fig0
 
 period_avg <- df |>
   filter(bin_mid > 1) |>
@@ -313,42 +319,51 @@ period_avg <- df |>
                        "Pre-Reform (2014-2015)\nThreshold = 10M MNT",
                        "Post-Reform (2016-2023)\nThreshold = 50M MNT"),
          thresh_era = if_else(year < reform_year, threshold_pre, threshold_post),
-         rev_norm   = bin_mid / thresh_era) |>
-  filter(rev_norm <= norm_max) |>
-  group_by(sector, label, type, era, thresh_era, bin_mid, rev_norm) |>
+         zoom_max   = if_else(year < reform_year, zoom_pre, zoom_post)) |>
+  filter(bin_mid <= zoom_max) |>
+  group_by(sector, label, type, era, thresh_era, bin_mid) |>
   summarise(avg_count = mean(count, na.rm = TRUE), .groups = "drop") |>
+  group_by(sector, era) |>
+  mutate(rel_density = avg_count / mean(avg_count, na.rm = TRUE)) |>  # 1.0 = typical bin
+  ungroup() |>
   mutate(
     group = if_else(type == "B2C",
                     "B2C (Treatment)",
                     "B2B (Control)"),
+    era   = factor(era, levels = c(
+             "Pre-Reform (2014-2015)\nThreshold = 10M MNT",
+             "Post-Reform (2016-2023)\nThreshold = 50M MNT")),
     label = factor(label, levels = c("Retail (B2C)", "Food service (B2C)",
-                                     "Wholesale (B2B)", "Manufacturing (B2B)")),
-    # exact bin edges in normalised units (1M-wide bins -> width varies by era)
-    xmin = (bin_mid - 0.5) / thresh_era,
-    xmax = (bin_mid + 0.5) / thresh_era
+                                     "Wholesale (B2B)", "Manufacturing (B2B)"))
   )
 
+thresh_lines <- period_avg |> distinct(era, thresh_era)
+
 p_desc <- ggplot(period_avg) +
-  geom_rect(aes(xmin = xmin, xmax = xmax, ymin = 0, ymax = avg_count,
-                fill = group), alpha = 0.75) +
-  geom_vline(xintercept = 1,
+  geom_col(aes(x = bin_mid, y = rel_density, fill = group),
+           width = 0.9, alpha = 0.75) +
+  geom_hline(yintercept = 1, color = "gray55", linewidth = 0.3) +
+  geom_vline(data = thresh_lines, aes(xintercept = thresh_era),
              color = "red", linetype = "dashed", linewidth = 0.9) +
-  annotate("text", x = 1, y = Inf, label = "VAT\nthreshold",
-           vjust = 1.4, hjust = -0.12, color = "red", size = 2.6) +
+  geom_text(data = thresh_lines,
+            aes(x = thresh_era, y = Inf, label = paste0(thresh_era, "M\nthreshold")),
+            vjust = 1.4, hjust = -0.08, color = "red", size = 2.6,
+            inherit.aes = FALSE) +
   scale_fill_manual(
     values = c("B2C (Treatment)" = "#E53935",
                "B2B (Control)"   = "#1E88E5")
   ) +
-  scale_x_continuous(limits = c(0, norm_max), breaks = norm_breaks) +
-  facet_grid(label ~ era, scales = "free_y") +
+  coord_cartesian(ylim = c(0, dens_ymax)) +
+  facet_grid(label ~ era, scales = "free_x") +   # x shared within era column; y shared everywhere
   labs(
     title    = "Raw Revenue Distributions Around the Active VAT Threshold",
-    subtitle = "Average annual number of firms per 1M MNT bin (0-1M catch-all bin excluded)",
-    x        = "Revenue / active VAT threshold  (1.0 = threshold; 10M pre-2016, 50M from 2016)",
-    y        = "Average number of firms per bin",
+    subtitle = "Firms per 1M MNT bin, relative to each panel's typical bin density (0-1M catch-all bin excluded)",
+    x        = "Revenue (million MNT)",
+    y        = "Firms per bin / panel mean  (1.0 = typical bin)",
     fill     = NULL,
     caption  = paste0(
-      "Each panel shows the mean annual firm count per 1M revenue bin, pooled within each policy era.\n",
+      "Each panel: mean annual firm count per 1M revenue bin, pooled within the policy era, ",
+      "divided by that panel's mean bin count so all panels share one y-scale.\n",
       "Red dashed line = VAT registration threshold (10M pre-2016; 50M from 2016).\n",
       "Visible spike just below the threshold indicates bunching (tax-minimising behaviour)."
     )
@@ -372,25 +387,29 @@ cat("Saved fig_desc_distributions.pdf\n")
 # STEP 3 -- Visualise raw distributions (spot-check bunching visually)
 # =============================================================================
 
-# X-axis is threshold-normalised (revenue / active threshold); every panel spans
-# 0 to norm_max with the kink at 1.0, so panels are comparable across the 2016
-# threshold change. norm_max / norm_breaks are defined in Step 2b.
-plot_dist <- function(sector_name, year_val, df, x_max = norm_max) {
+# X-axis: revenue in million MNT, shared range 0..zoom_max across all four sector
+# panels of a given year. Y-axis: relative bin density (bin count / mean bin count
+# over the plotted window), matching fig_desc: 1.0 = typical bin, shared across
+# panels. zoom_pre / zoom_post / dens_ymax are defined in Step 2b.
+plot_dist <- function(sector_name, year_val, df, zoom_max) {
   thresh <- if (year_val < reform_year) threshold_pre else threshold_post
   d <- df |> filter(sector == sector_name, year == year_val,
                     bin_mid > 1,
-                    bin_mid / thresh <= x_max) |>
-    mutate(rev_norm = bin_mid / thresh)
-  ggplot(d, aes(x = rev_norm, y = count)) +
-    geom_col(fill = "steelblue", alpha = 0.7, width = 0.9 / thresh) +
-    geom_vline(xintercept = 1, color = "red", linewidth = 1,
+                    bin_mid <= zoom_max) |>
+    mutate(rel_density = count / mean(count, na.rm = TRUE))
+  ggplot(d, aes(x = bin_mid, y = rel_density)) +
+    geom_col(fill = "steelblue", alpha = 0.7, width = 0.9) +
+    geom_hline(yintercept = 1, color = "gray55", linewidth = 0.3) +
+    geom_vline(xintercept = thresh, color = "red", linewidth = 1,
                linetype = "dashed") +
-    annotate("text", x = 1.03, y = max(d$count, na.rm = TRUE) * 0.9,
+    annotate("text", x = thresh + 1, y = dens_ymax * 0.9,
              label = paste0("Threshold\n", thresh, "M"),
              color = "red", size = 3, hjust = 0) +
-    scale_x_continuous(limits = c(0, x_max), breaks = norm_breaks) +
+    scale_x_continuous(breaks = seq(0, zoom_max, by = 10)) +
+    coord_cartesian(xlim = c(0, zoom_max), ylim = c(0, dens_ymax)) +
     labs(title = paste(sector_name, year_val),
-         x = "Revenue / VAT threshold", y = "Number of firms") +
+         x = "Revenue (million MNT)",
+         y = "Firms per bin / panel mean  (1.0 = typical)") +
     theme_minimal(base_size = 10)
 }
 
@@ -398,7 +417,10 @@ check_years <- c(2014, 2017)
 
 for (yr in check_years) {
 
-  plots_yr <- map(sector_meta$sector, ~plot_dist(.x, yr, df))
+  plots_yr <- map(sector_meta$sector, ~plot_dist(
+    .x, yr, df,
+    zoom_max = if (yr < reform_year) zoom_pre else zoom_post
+  ))
   
   p_yr <- wrap_plots(plots_yr, ncol = 2) +
     plot_annotation(
@@ -1025,7 +1047,9 @@ sector_ts <- results |>
          covid = (year %in% c(2020, 2021)),
          group = if_else(type == "B2C",
                          "B2C (Retail + Food service)",
-                         "B2B (Wholesale + Manufacturing)"))
+                         "B2B (Wholesale + Manufacturing)"),
+         label = factor(label, levels = c("Retail (B2C)", "Food service (B2C)",
+                                          "Wholesale (B2B)", "Manufacturing (B2B)")))
 
 p_sector <- ggplot(sector_ts, aes(x = year, y = b, color = group, fill = group)) +
   geom_rect(data = tibble(xmin = 2019.5, xmax = 2021.5,
@@ -1039,13 +1063,15 @@ p_sector <- ggplot(sector_ts, aes(x = year, y = b, color = group, fill = group))
              shape = 2, stroke = 1.2) +
   geom_vline(xintercept = reform_year - 0.5, linetype = "longdash",
              color = "black", linewidth = 0.6) +
-  facet_wrap(~label, ncol = 2, scales = "free_y") +
+  facet_wrap(~label, ncol = 2) +          # shared y-axis: b is already normalised,
+                                          # so a common scale shows the B2C vs B2B
+                                          # level gap across panels
   scale_color_manual(values = cols_type) +
   scale_fill_manual(values  = cols_type) +
   scale_x_continuous(breaks = years) +
   labs(
     title    = "Bunching Estimates by Sector",
-    subtitle = "Vertical line = 2016 reform | Triangles = 2020-2021 (COVID)",
+    subtitle = "Shared y-axis | Vertical line = 2016 reform | Triangles = 2020-2021 (COVID)",
     x = "Year", y = "Normalised excess mass (b)",
     color = NULL, fill = NULL
   ) +
@@ -1184,10 +1210,12 @@ cat("Saved fig4_did_bar.pdf\n")
 
 # ── Figure 5: Bunching density plots (counterfactual overlay) ─────────────────
 
-# X-axis is threshold-normalised (revenue / active threshold); every panel spans
-# 0 to x_max with the kink at 1.0, so panels are comparable across the 2016
-# threshold change. norm_max / norm_breaks are defined in Step 2b.
-plot_cf <- function(sector_name, yr, df, x_max = norm_max) {
+# X-axis: revenue in million MNT. Upper bound is shared across all four sector
+# panels of a given year (zoom_pre / zoom_post from Step 2b); the lower bound is
+# left to the data, which starts at the counterfactual fitting window
+# (threshold - 3*excl_lo), so the empty stretch below the fit is cropped out.
+# Y-axis unchanged: raw firm count with the polynomial counterfactual as a curve.
+plot_cf <- function(sector_name, yr, df, zoom_max) {
   thresh   <- if (yr < reform_year) threshold_pre   else threshold_post
   excl_lo  <- if (yr < reform_year) excl_below_pre  else excl_below_post
   excl_hi  <- if (yr < reform_year) excl_above_pre  else excl_above_post
@@ -1197,29 +1225,29 @@ plot_cf <- function(sector_name, yr, df, x_max = norm_max) {
   if (is.null(est)) return(NULL)
 
   plot_df <- tibble(bin_mid = est$bm, actual = est$bc, cf = est$cf) |>
-    mutate(rev_norm = bin_mid / thresh) |>
-    filter(bin_mid > 1, rev_norm <= x_max)
+    filter(bin_mid > 1, bin_mid <= zoom_max)
 
-  ggplot(plot_df, aes(x = rev_norm)) +
-    geom_col(aes(y = actual), fill = "steelblue", alpha = 0.6, width = 0.9 / thresh) +
+  ggplot(plot_df, aes(x = bin_mid)) +
+    geom_col(aes(y = actual), fill = "steelblue", alpha = 0.6, width = 0.9) +
     geom_line(aes(y = cf), color = "red", linewidth = 1) +
-    geom_vline(xintercept = 1, linetype = "dashed",
+    geom_vline(xintercept = thresh, linetype = "dashed",
                color = "darkred", linewidth = 0.8) +
     geom_rect(
       data = tibble(
-        xmin = (thresh - excl_lo) / thresh, xmax = 1,
+        xmin = thresh - excl_lo, xmax = thresh,
         ymin = -Inf, ymax = Inf
       ),
       aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
       fill = "gold", alpha = 0.2, inherit.aes = FALSE
     ) +
-    annotate("text", x = 1.03,
+    annotate("text", x = thresh + 1,
              y = max(plot_df$actual, na.rm = TRUE) * 0.85,
              label = sprintf("b = %.2f", est$b),
              color = "darkred", size = 3.5, hjust = 0) +
     labs(title = paste(sector_name, yr),
-         x = "Revenue / VAT threshold", y = "Number of firms") +
-    scale_x_continuous(limits = c(0, x_max), breaks = norm_breaks) +
+         x = "Revenue (million MNT)", y = "Number of firms") +
+    scale_x_continuous(breaks = seq(0, zoom_max, by = max(5, thresh))) +
+    coord_cartesian(xlim = c(NA, zoom_max)) +
     theme_minimal(base_size = 10)
 }
 
@@ -1227,7 +1255,10 @@ cf_years <- c(2015, 2022)
 
 for (yr in cf_years) {
 
-  plots_yr <- map(sector_meta$sector, ~plot_cf(.x, yr, df)) |> compact()
+  plots_yr <- map(sector_meta$sector, ~plot_cf(
+    .x, yr, df,
+    zoom_max = if (yr < reform_year) zoom_pre else zoom_post
+  )) |> compact()
   
   if (length(plots_yr) == 0) next
   

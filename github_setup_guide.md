@@ -1,3 +1,11 @@
+cd ~/Documents/GraSPP/vat-threshold-mongolia
+git add -A
+git commit -m "Normalize figures y axis"
+git push
+
+
+
+
 # Putting your thesis on GitHub — a step-by-step guide
 
 Written for a first-time git user, on a Mac. Follow it top to bottom. Each phase ends with a **Checkpoint** so you know it worked before moving on.

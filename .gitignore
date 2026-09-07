@@ -31,3 +31,4 @@ data/raw/
 
 # --- macOS ---
 .DS_Store
+output/
