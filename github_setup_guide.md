@@ -3,6 +3,10 @@ git add -A
 git commit -m "Normalize figures y axis"
 git push
 
+cd ~/Documents/GraSPP/vat-threshold-mongolia/vat-threshold-mongolia 
+git add -A
+git commit -m "Final version"
+git push
 
 
 
